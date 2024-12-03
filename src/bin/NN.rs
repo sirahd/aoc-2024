@@ -20,9 +20,9 @@ fn main() -> Result<()> {
     //region Part 1
     println!("=== Part 1 ===");
 
-    fn part1<R: BufRead>(reader: R) -> Result<usize> {
+    fn part1<R: BufRead>(reader: R) -> Result<i32> {
         let answer = reader.lines().flatten().count();
-        Ok(answer)
+        Ok(answer as i32)
     }
 
     assert_eq!(0, part1(BufReader::new(TEST.as_bytes()))?);
@@ -35,7 +35,7 @@ fn main() -> Result<()> {
     //region Part 2
     // println!("\n=== Part 2 ===");
     //
-    // fn part2<R: BufRead>(reader: R) -> Result<usize> {
+    // fn part2<R: BufRead>(reader: R) -> Result<i32> {
     //     Ok(0)
     // }
     //
