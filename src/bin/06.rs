@@ -125,94 +125,79 @@ fn main() -> Result<()> {
         let len_y = input.len() as i32;
         let len_x = input[0].len() as i32;
         let (obstacles, mut pos) = find_obstacles_and_starting_pos(input);
-        // let mut visited = HashSet::new();
-        // let mut obstruction = HashSet::new();
-        // let mut dir = Direction::Up;
-        let mut num_obstruction = 0;
-        for i in 0..len_x {
-            for j in 0..len_y {
-                if !obstacles.contains(&(i, j)) && (i, j) != pos {
-                    let mut new_obstacles = obstacles.clone();
-                    new_obstacles.insert((i, j));
-                    if has_cycle(
-                        new_obstacles,
-                        pos,
-                        (len_x, len_y),
-                        Direction::Up,
-                        HashSet::new(),
-                    ) {
-                        num_obstruction += 1;
+        let mut visited = HashSet::new();
+        let mut obstruction = HashSet::new();
+        let mut dir = Direction::Up;
+        loop {
+            let (x, y) = pos;
+            if x < 0 || x >= len_x || y < 0 || y >= len_y {
+                break;
+            }
+            visited.insert(pos);
+            match dir {
+                Direction::Up => {
+                    if obstacles.contains(&(x, y - 1)) {
+                        dir = Direction::Right;
+                    } else {
+                        if y - 1 >= 0 && !visited.contains(&(x, y - 1)) {
+                            let mut new_obstacles = obstacles.clone();
+                            new_obstacles.insert((x, y - 1));
+                            if has_cycle(new_obstacles, (x, y), (len_x, len_y), dir, HashSet::new())
+                            {
+                                obstruction.insert((x, y - 1));
+                            }
+                        }
+                        pos = (x, y - 1);
+                    }
+                }
+                Direction::Down => {
+                    if obstacles.contains(&(x, y + 1)) {
+                        dir = Direction::Left;
+                    } else {
+                        if y + 1 < len_y && !visited.contains(&(x, y + 1)) {
+                            let mut new_obstacles = obstacles.clone();
+                            new_obstacles.insert((x, y + 1));
+                            if has_cycle(new_obstacles, (x, y), (len_x, len_y), dir, HashSet::new())
+                            {
+                                obstruction.insert((x, y + 1));
+                            }
+                        }
+                        pos = (x, y + 1);
+                    }
+                }
+                Direction::Left => {
+                    if obstacles.contains(&(x - 1, y)) {
+                        dir = Direction::Up;
+                    } else {
+                        if x - 1 >= 0 && !visited.contains(&(x - 1, y)) {
+                            let mut new_obstacles = obstacles.clone();
+                            new_obstacles.insert((x - 1, y));
+                            if has_cycle(new_obstacles, (x, y), (len_x, len_y), dir, HashSet::new())
+                            {
+                                obstruction.insert((x - 1, y));
+                            }
+                        }
+                        pos = (x - 1, y);
+                    }
+                }
+                Direction::Right => {
+                    if obstacles.contains(&(x + 1, y)) {
+                        dir = Direction::Down;
+                    } else {
+                        if x + 1 < len_x && !visited.contains(&(x + 1, y)) {
+                            let mut new_obstacles = obstacles.clone();
+                            new_obstacles.insert((x + 1, y));
+                            if has_cycle(new_obstacles, (x, y), (len_x, len_y), dir, HashSet::new())
+                            {
+                                obstruction.insert((x + 1, y));
+                            }
+                        }
+                        pos = (x + 1, y);
                     }
                 }
             }
         }
-        // loop {
-        //     let (x, y) = pos;
-        //     if x < 0 || x >= len_x || y < 0 || y >= len_y {
-        //         break;
-        //     }
-        //     visited.insert((pos, dir));
-        //     match dir {
-        //         Direction::Up => {
-        //             if obstacles.contains(&(x, y - 1)) {
-        //                 dir = Direction::Right;
-        //             } else {
-        //                 if y - 1 >= 0 {
-        //                     let mut new_obstacles = obstacles.clone();
-        //                     new_obstacles.insert((x, y - 1));
-        //                     if has_cycle(new_obstacles, pos, (len_x, len_y), dir, HashSet::new()) {
-        //                         obstruction.insert((x, y - 1));
-        //                     }
-        //                 }
-        //                 pos = (x, y - 1);
-        //             }
-        //         }
-        //         Direction::Down => {
-        //             if obstacles.contains(&(x, y + 1)) {
-        //                 dir = Direction::Left;
-        //             } else {
-        //                 if y + 1 < len_y {
-        //                     let mut new_obstacles = obstacles.clone();
-        //                     new_obstacles.insert((x, y + 1));
-        //                     if has_cycle(new_obstacles, pos, (len_x, len_y), dir, HashSet::new()) {
-        //                         obstruction.insert((x, y + 1));
-        //                     }
-        //                 }
-        //                 pos = (x, y + 1);
-        //             }
-        //         }
-        //         Direction::Left => {
-        //             if obstacles.contains(&(x - 1, y)) {
-        //                 dir = Direction::Up;
-        //             } else {
-        //                 if x - 1 >= 0 {
-        //                     let mut new_obstacles = obstacles.clone();
-        //                     new_obstacles.insert((x - 1, y));
-        //                     if has_cycle(new_obstacles, pos, (len_x, len_y), dir, HashSet::new()) {
-        //                         obstruction.insert((x - 1, y));
-        //                     }
-        //                 }
-        //                 pos = (x - 1, y);
-        //             }
-        //         }
-        //         Direction::Right => {
-        //             if obstacles.contains(&(x + 1, y)) {
-        //                 dir = Direction::Down;
-        //             } else {
-        //                 if x + 1 < len_x {
-        //                     let mut new_obstacles = obstacles.clone();
-        //                     new_obstacles.insert((x + 1, y));
-        //                     if has_cycle(new_obstacles, pos, (len_x, len_y), dir, HashSet::new()) {
-        //                         obstruction.insert((x + 1, y));
-        //                     }
-        //                 }
-        //                 pos = (x + 1, y);
-        //             }
-        //         }
-        //     }
-        // }
-        // Ok(obstruction.len() as i32)
-        Ok(num_obstruction)
+        Ok(obstruction.len() as i32)
     }
     fn has_cycle(
         obstacles: HashSet<(i32, i32)>,
